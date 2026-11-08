@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POMEM Başvuru Portalı – T.C. Emniyet Genel Müdürlüğü</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117; --bg2:#161b22; --card:#1a1f2e; --inp:#0f1218;
+  --brd:#2d3748; --acc:#5865F2; --acc2:#4752c4;
+  --txt:#e2e8f0; --txt2:#a0aec0; --mut:#718096;
+  --ok:#48bb78; --err:#fc8181; --wrn:#f6ad55;
+  --r:12px; --r2:8px; --sh:0 4px 24px rgba(0,0,0,.45);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;line-height:1.6}
+
+/* PAGES */
+.page{display:none;min-height:100vh}
+.page.active{display:flex;flex-direction:column}
+#pg-login{
+  align-items:center;justify-content:center;
+  background:
+    radial-gradient(ellipse at 20% 50%,rgba(88,101,242,.09) 0%,transparent 55%),
+    radial-gradient(ellipse at 80% 20%,rgba(0,48,135,.1) 0%,transparent 50%),
+    var(--bg);
+}
+
+/* LOGIN */
+.login-card{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:2.5rem 2rem;max-width:440px;width:100%;text-align:center;box-shadow:var(--sh)}
+.egm-logo{width:88px;height:88px;margin:0 auto 1.2rem;display:block;filter:drop-shadow(0 0 14px rgba(88,101,242,.35))}
+.login-title{font-size:1.35rem;font-weight:700;line-height:1.35;margin-bottom:.35rem}
+.login-sub{color:var(--acc);font-size:.82rem;font-weight:500;letter-spacing:1.1px;margin-bottom:1.2rem}
+.login-desc{color:var(--txt2);font-size:.86rem;line-height:1.75;margin-bottom:1.7rem}
+.alert{padding:.7rem 1rem;border-radius:var(--r2);font-size:.84rem;margin-bottom:1rem;text-align:left}
+.alert-err{background:rgba(252,129,129,.1);border:1px solid rgba(252,129,129,.3);color:var(--err)}
+.btn-discord{
+  display:inline-flex;align-items:center;gap:.6rem;
+  background:var(--acc);color:#fff;border:none;
+  font-weight:600;font-size:.95rem;padding:.8rem 1.75rem;border-radius:var(--r2);
+  cursor:pointer;font-family:inherit;text-decoration:none;
+  box-shadow:0 4px 15px rgba(88,101,242,.38);transition:all .2s;
+}
+.btn-discord:hover{background:var(--acc2);transform:translateY(-1px);box-shadow:0 6px 22px rgba(88,101,242,.52)}
+
+/* NAVBAR */
+.navbar{position:sticky;top:0;z-index:100;background:rgba(22,27,34,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:.7rem 2rem;gap:1rem;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:.7rem}
+.brand-logo{width:36px;height:36px;filter:drop-shadow(0 0 7px rgba(88,101,242,.45))}
+.brand-name{font-size:.84rem;font-weight:700;letter-spacing:.3px}
+.brand-sub{font-size:.68rem;color:var(--mut)}
+.nav-r{display:flex;align-items:center;gap:.9rem}
+.btn-hist{background:transparent;border:1px solid var(--brd);color:var(--txt2);padding:.42rem 1rem;border-radius:var(--r2);font-size:.8rem;font-weight:500;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-hist:hover{border-color:var(--acc);color:var(--txt);background:rgba(88,101,242,.08)}
+.chip{display:flex;align-items:center;gap:.55rem;background:var(--card);border:1px solid var(--brd);padding:.3rem .7rem .3rem .35rem;border-radius:50px}
+.av{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--acc)}
+.av-fallback{width:28px;height:28px;border-radius:50%;border:2px solid var(--acc);background:linear-gradient(135deg,#5865F2,#4752c4);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;flex-shrink:0}
+.u-name{font-size:.78rem;font-weight:600;line-height:1.2}
+.u-tag{font-size:.66rem;color:var(--mut)}
+.btn-out{background:none;border:none;color:var(--mut);cursor:pointer;font-size:.95rem;transition:color .2s;line-height:1;padding:.1rem .15rem;text-decoration:none}
+.btn-out:hover{color:var(--err)}
+
+/* FORM */
+.form-wrap{flex:1;padding:2rem 1rem 3rem;display:flex;justify-content:center}
+.form-card{width:100%;max-width:760px}
+.form-hdr{margin-bottom:1.4rem}
+.form-title-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.35rem}
+.form-title{font-size:1.3rem;font-weight:700;flex:1}
+.btn-draft{background:var(--card);border:1px solid var(--brd);color:var(--txt2);padding:.38rem .85rem;border-radius:var(--r2);font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-draft:hover{border-color:var(--acc);color:var(--txt)}
+.btn-draft-del{background:var(--card);border:1px solid var(--brd);color:var(--mut);padding:.38rem .6rem;border-radius:var(--r2);font-size:.82rem;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-draft-del:hover{border-color:var(--err);color:var(--err)}
+.form-desc{font-size:.8rem;color:var(--mut)}
+.q-card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:1.2rem 1.4rem;margin-bottom:.9rem;transition:border-color .2s}
+.q-card:focus-within{border-color:rgba(88,101,242,.55)}
+.q-head{display:flex;align-items:flex-start;gap:.8rem;margin-bottom:.8rem}
+.q-num{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;background:linear-gradient(135deg,rgba(88,101,242,.22),rgba(88,101,242,.05));border:1px solid rgba(88,101,242,.32);border-radius:7px;font-size:.72rem;font-weight:700;color:var(--acc);flex-shrink:0;margin-top:1px}
+.q-text{font-size:.9rem;font-weight:500;line-height:1.5;cursor:pointer}
+.fi,.ft{width:100%;background:var(--inp);border:1px solid var(--brd);border-radius:var(--r2);color:var(--txt);font-family:'Inter',sans-serif;font-size:.875rem;padding:.68rem 1rem;outline:none;transition:border-color .2s,box-shadow .2s;resize:vertical}
+.fi:focus,.ft:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(88,101,242,.12)}
+.fi::placeholder,.ft::placeholder{color:var(--mut);font-size:.8rem}
+.ft{min-height:88px}
+.form-foot{display:flex;justify-content:flex-end;margin-top:2rem}
+.btn-submit{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:none;padding:.82rem 2rem;border-radius:var(--r2);font-size:.92rem;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 15px rgba(88,101,242,.38);transition:all .2s}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(88,101,242,.52)}
+.btn-submit:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.68);backdrop-filter:blur(5px);z-index:200;align-items:center;justify-content:center;padding:1rem}
+.overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--brd);border-radius:16px;width:100%;max-width:660px;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:mIn .22s ease}
+.modal-sm{max-width:420px}
+@keyframes mIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mhd{display:flex;align-items:center;justify-content:space-between;padding:1.05rem 1.4rem;border-bottom:1px solid var(--brd);flex-shrink:0}
+.mttl{font-size:.97rem;font-weight:700;display:flex;align-items:center;gap:.45rem}
+.mx{background:none;border:none;color:var(--mut);font-size:1.05rem;cursor:pointer;padding:.15rem;transition:color .2s;line-height:1}
+.mx:hover{color:var(--txt)}
+.mbdy{flex:1;overflow-y:auto;padding:1.4rem;scrollbar-width:thin;scrollbar-color:var(--brd) transparent}
+.mft{padding:.9rem 1.4rem;border-top:1px solid var(--brd);display:flex;justify-content:flex-end;flex-shrink:0}
+.btn-kapat{background:var(--bg2);border:1px solid var(--brd);color:var(--txt2);padding:.48rem 1.3rem;border-radius:var(--r2);font-size:.86rem;font-weight:500;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-kapat:hover{border-color:var(--acc);color:var(--txt)}
+
+/* DURUM */
+.dur{border-radius:var(--r2);padding:.85rem 1.15rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem;font-weight:600;font-size:.88rem;gap:.5rem;flex-wrap:wrap}
+.dur-ok {background:rgba(72,187,120,.1);border:1px solid rgba(72,187,120,.3);color:var(--ok)}
+.dur-w  {background:rgba(246,173,85,.1);border:1px solid rgba(246,173,85,.3);color:var(--wrn)}
+.dur-no {background:rgba(252,129,129,.1);border:1px solid rgba(252,129,129,.3);color:var(--err)}
+.dur-badge{background:var(--bg2);border:1px solid var(--brd);color:var(--mut);padding:.18rem .55rem;border-radius:5px;font-size:.75rem;font-weight:600}
+.dur-meta{font-size:.75rem;color:var(--mut);margin-top:.2rem;font-weight:400}
+.ans-hd{font-size:.83rem;font-weight:600;color:var(--txt2);margin-bottom:.9rem}
+.ans-item{margin-bottom:.9rem;border-left:3px solid rgba(88,101,242,.38);padding-left:.8rem}
+.ans-q{font-size:.75rem;font-weight:600;color:var(--acc);margin-bottom:.15rem}
+.ans-a{font-size:.84rem;line-height:1.5}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.4rem;right:1.4rem;background:var(--card);border:1px solid var(--brd);border-radius:var(--r2);padding:.75rem 1.15rem;font-size:.84rem;box-shadow:var(--sh);z-index:999;max-width:320px;animation:tIn .28s ease}
+.tok-ok {border-color:rgba(72,187,120,.42);background:rgba(72,187,120,.08);color:var(--ok)}
+.tok-err{border-color:rgba(252,129,129,.42);background:rgba(252,129,129,.08);color:var(--err)}
+@keyframes tIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+@media(max-width:600px){.navbar{padding:.6rem 1rem;flex-wrap:wrap}.nav-r{gap:.5rem;flex-wrap:wrap}.u-name,.u-tag{display:none}.form-wrap{padding:1rem .75rem 2.5rem}}
+</style>
+</head>
+<body>
+
+<!-- ═══ GİRİŞ ═══ -->
+<div id="pg-login" class="page active">
+  <div class="login-card">
+    <img class="egm-logo" src="/egm.png" alt="EGM Logo">
+    <h1 class="login-title">T.C. EMNİYET GENEL<br>MÜDÜRLÜĞÜ</h1>
+    <p class="login-sub">🛡️ POMEM BAŞVURU PORTALI</p>
+    <div id="loginError" style="display:none" class="alert alert-err"></div>
+    <p class="login-desc">Emniyet teşkilatı bünyesinde Polis Memuru kadrosuna dahil olmak için resmi mülakat formunu doldurunuz. Başvuru süreci Discord hesabınız üzerinden yürütülmektedir.</p>
+    <a href="/auth/login" class="btn-discord">
+      <svg width="20" height="15" viewBox="0 0 71 55" fill="none"><path d="M60.1045 4.8978C55.5792 2.8214 50.7265 1.2916 45.6527.41542c-.0924-.01691-.1847.02535-.2323.10987C44.7963 1.6353 44.105 3.0834 43.6209 4.2216 38.1637 3.4046 32.7345 3.4046 27.3892 4.2216c-.4842-1.1635-1.2006-2.5863-1.8275-3.6963-.0476-.08452-.1399-.1268-.2323-.1099C20.2584 1.2888 15.4057 2.8186 10.8776 4.8978c-.0392.0169-.0728.0451-.0951.0817C1.57795 18.7309-.943561 32.1443.293408 45.3914c.005597.0648.041978.1268.092353.1662C6.45866 50.0174 12.3413 52.7249 18.1147 54.5195c.0924.0282.19.0056-.0756.0508-.0762.1366-.1523.0605-1.3657-1.865-2.583-3.8315-3.6268-5.8995-.0616-.1211-.0028-.2648.1231-.3127 1.931-.7325 3.7697-1.6256 5.5384-2.6398.1399-.0817.1511-.2818.0224-.3776-.3722-.2789-.7445-.5691-1.0999-.8621-.0643-.0535-.154-.0648-.2296-.031C17.6362 44.3151 29.2558 49.6202 53.3179 44.3151c.0756-.0366.1652-.0253.2323.031.3526.293.7276.5832 1.1.8621.1287.0958.1175.2959-.0196.3776-1.7687 1.0339-3.6074 1.9269-5.5412 2.6566-.1259.0479-.182.1944-.1204.3155 1.0662 2.065 2.2836 4.0315 3.6241 5.8967.0588.079.1595.1128.252.0846 5.8014-1.7946 11.684-4.5021 17.757-8.9619.0504-.0394.0868-.1015.0924-.1663C72.1747 30.0791 68.2147 16.7757 60.1968 4.9823c-.0196-.0394-.0531-.0676-.0923-.0845Z" fill="white"/></svg>
+      Discord ile Giriş Yap &amp; Başvur
+    </a>
+  </div>
+</div>
+
+<!-- ═══ PORTAL ═══ -->
+<div id="pg-portal" class="page">
+  <nav class="navbar">
+    <div class="brand">
+      <img src="/egm.png" alt="EGM" class="brand-logo">
+      <div>
+        <div class="brand-name">EMNİYET GENEL MÜDÜRLÜĞÜ</div>
+        <div class="brand-sub">POMEM Başvuru Portalı</div>
+      </div>
+    </div>
+    <div class="nav-r">
+      <button class="btn-hist" onclick="openHistory()">📋 Başvurularım</button>
+      <a href="/admin" class="btn-hist" style="text-decoration:none">⚙️ Admin</a>
+      <div class="chip">
+        <div id="userAv" class="av-fallback">?</div>
+        <div>
+          <div class="u-name" id="userName">—</div>
+          <div class="u-tag"  id="userTag">—</div>
+        </div>
+        <a href="/auth/logout" class="btn-out" title="Çıkış Yap">⏻</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="form-wrap">
+    <div class="form-card">
+      <div class="form-hdr">
+        <div class="form-title-row">
+          <span style="font-size:1.25rem">🛡️</span>
+          <h2 class="form-title">POMEM Polis Alım &amp; Mülakat Formu</h2>
+          <button class="btn-draft" onclick="saveDraft()">💾 Taslağı Kaydet</button>
+          <button class="btn-draft-del" onclick="clearDraft()" title="Taslağı Sil">🗑️</button>
+        </div>
+        <p class="form-desc">T.C. Emniyet Genel Müdürlüğü resmi aday memur mülakat ve giriş anketi</p>
+      </div>
+      <form id="mainForm"></form>
+    </div>
+  </main>
+</div>
+
+<!-- ═══ MODAL – GEÇMİŞ ═══ -->
+<div id="histOverlay" class="overlay" onclick="overlayClick(event,'histOverlay')">
+  <div class="modal">
+    <div class="mhd">
+      <div class="mttl">📋 Başvuru Geçmişim &amp; Güncel Durum</div>
+      <button class="mx" onclick="closeOverlay('histOverlay')">✕</button>
+    </div>
+    <div class="mbdy" id="histBody"></div>
+    <div class="mft"><button class="btn-kapat" onclick="closeOverlay('histOverlay')">Kapat</button></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL – BAŞARI ═══ -->
+<div id="okOverlay" class="overlay">
+  <div class="modal modal-sm">
+    <div class="mhd"><div class="mttl">✅ Başvuru Gönderildi</div></div>
+    <div class="mbdy" style="text-align:center;padding:1.75rem 1.4rem">
+      <p style="color:var(--txt2);font-size:.88rem;line-height:1.7;margin-bottom:1rem">Başvurunuz başarıyla alındı.<br>Yetkililer inceledikten sonra Discord üzerinden bildirilecektir.</p>
+      <p id="appNo" style="color:var(--acc);font-weight:700;font-size:1.05rem"></p>
+    </div>
+    <div class="mft"><button class="btn-kapat" onclick="closeOk()">Tamam</button></div>
+  </div>
+</div>
+
+<script>
+const DRAFT_KEY = 'pomem_taslak';
+const SORULAR = [
+  {n:1, t:'Yaşınız kaçtır? (OOC)', el:'input', ph:'Yaşınızı giriniz (Örn: 20)...'},
+  {n:2, t:'Daha önce hangi Türk sunucularında bulundunuz ya da bulunuyorsunuz? (OOC)', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:3, t:'Sunucuya ne zaman geldiniz, hiç illegal yaptınız mı?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:4, t:'Aktiflik saatiniz günlük ne kadar?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:5, t:'FiveM saatiniz ne kadar?', el:'input', ph:'Saat sayısını giriniz...'},
+  {n:6, t:'Başka bir sunucuda yetkili göreviniz var mı? (OOC)', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:7, t:'Karakterinizin adı soyadı nedir? (IC)', el:'input', ph:'Ad Soyad...'},
+  {n:8, t:'Karakterinizin yaşı ve mesleği nedir? (IC)', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:9, t:'Polislik neden istiyorsunuz? Motivasyonunuz nedir?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:10,t:'Polis akademisinde hangi derslerde başarılı oldunuz?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:11,t:'Ekip çalışmasına bakış açınız nedir?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:12,t:'Bir olay yerine ilk vardığınızda ne yaparsınız?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:13,t:'Silah kullanımı konusunda kendinizi nasıl değerlendirirsiniz?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:14,t:'Yolda yaralı bir kişi gördüğünüzde nasıl davranırsınız?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:15,t:'Amirlerinizin verdiği emirlere katılmadığınızda ne yaparsınız?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:16,t:'Rüşvet teklif edilse ne yaparsınız?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:17,t:'Sunucudaki polis kurallarını biliyor musunuz?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:18,t:'PIT nedir ve nasıl atılır? Özel izin gerekli midir?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:19,t:'Hapis ve kamu cezası nasıl yazılır?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+  {n:20,t:'Bir sivil size hakaret edip agresif rol sergiliyorsa ne yaparsınız?', el:'textarea', ph:'Detaylı cevabınızı buraya yazınız...'},
+];
+
+/* FORM İNŞA */
+(function(){
+  const f = document.getElementById('mainForm');
+  let h = '';
+  SORULAR.forEach(s=>{
+    const no = String(s.n).padStart(2,'0');
+    const field = s.el==='input'
+      ? `<input type="text" id="s${s.n}" name="a${s.n}" class="fi" placeholder="${s.ph}" autocomplete="off">`
+      : `<textarea id="s${s.n}" name="a${s.n}" class="ft" placeholder="${s.ph}" rows="3"></textarea>`;
+    h+=`<div class="q-card"><div class="q-head"><span class="q-num">${no}</span><label class="q-text" for="s${s.n}">${s.t}</label></div>${field}</div>`;
+  });
+  h+=`<div class="form-foot"><button type="button" class="btn-submit" onclick="submitForm()">✈️ Başvuruyu Tamamla &amp; Gönder</button></div>`;
+  f.innerHTML=h;
+  loadDraft();
+})();
+
+/* OTURUM KONTROLÜ */
+async function init() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('error')) {
+    const el = document.getElementById('loginError');
+    el.textContent = '❌ Giriş başarısız oldu. Tekrar deneyin.';
+    el.style.display = 'block';
+    history.replaceState({}, '', '/');
+  }
+
+  try {
+    const res  = await fetch('/api/me');
+    const data = await res.json();
+    if (data.loggedIn) {
+      renderUser(data.user);
+      document.getElementById('pg-login').classList.remove('active');
+      document.getElementById('pg-portal').classList.add('active');
+    }
+  } catch(e) {}
+}
+
+function renderUser(u) {
+  document.getElementById('userName').textContent = u.global_name || u.username;
+  document.getElementById('userTag').textContent  = u.username;
+  const av = document.getElementById('userAv');
+  if (u.avatar) {
+    const img = document.createElement('img');
+    img.src = `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=64`;
+    img.className = 'av';
+    img.alt = u.username;
+    av.replaceWith(img);
+  } else {
+    av.textContent = (u.global_name || u.username).slice(0,2).toUpperCase();
+  }
+}
+
+init();
+
+/* TASLAK */
+function getAnswers(){
+  const d={};
+  SORULAR.forEach(s=>{const el=document.getElementById(`s${s.n}`);if(el) d[s.n]=el.value.trim();});
+  return d;
+}
+function saveDraft(){
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(getAnswers()));
+  toast('💾 Taslak kaydedildi.','ok');
+}
+function loadDraft(){
+  const raw=localStorage.getItem(DRAFT_KEY);
+  if(!raw) return;
+  try{const d=JSON.parse(raw);Object.entries(d).forEach(([n,v])=>{const el=document.getElementById(`s${n}`);if(el)el.value=v;});}catch(e){}
+}
+function clearDraft(){
+  if(!confirm('Taslağı silmek istediğinizden emin misiniz?')) return;
+  localStorage.removeItem(DRAFT_KEY);
+  SORULAR.forEach(s=>{const el=document.getElementById(`s${s.n}`);if(el)el.value='';});
+  toast('🗑️ Taslak silindi.','err');
+}
+
+/* GÖNDER */
+async function submitForm(){
+  const d=getAnswers();
+  const bos=[];
+  for(let i=1;i<=10;i++) if(!d[i]) bos.push(i);
+  if(bos.length){
+    toast(`❌ ${bos.length} zorunlu soru boş (${bos.slice(0,4).join(', ')}${bos.length>4?'…':''}).`,'err');
+    const el=document.getElementById(`s${bos[0]}`);
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.focus();}
+    return;
+  }
+  const btn=document.querySelector('.btn-submit');
+  btn.disabled=true; btn.textContent='⏳ Gönderiliyor...';
+  try{
+    const res=await fetch('/api/basvuru',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({yanitlar:d}),
+    });
+    const data=await res.json();
+    if(data.success){
+      localStorage.removeItem(DRAFT_KEY);
+      document.getElementById('appNo').textContent=`Başvuru No: #${data.id}`;
+      document.getElementById('okOverlay').classList.add('open');
+    } else {
+      toast('❌ '+(data.message||'Bir hata oluştu.'),'err');
+      btn.disabled=false; btn.textContent='✈️ Başvuruyu Tamamla & Gönder';
+    }
+  }catch(e){
+    toast('❌ Sunucu bağlantı hatası.','err');
+    btn.disabled=false; btn.textContent='✈️ Başvuruyu Tamamla & Gönder';
+  }
+}
+
+/* GEÇMİŞ */
+async function openHistory(){
+  const body=document.getElementById('histBody');
+  body.innerHTML='<div style="text-align:center;padding:2rem;color:var(--mut)">⏳ Yükleniyor...</div>';
+  document.getElementById('histOverlay').classList.add('open');
+  try{
+    const res=await fetch('/api/basvuru');
+    const data=await res.json();
+    if(data.success && data.data){
+      body.innerHTML=renderHistory(data.data);
+    } else {
+      body.innerHTML=`<div style="text-align:center;padding:2.5rem;color:var(--mut)"><div style="font-size:2.5rem;margin-bottom:1rem">📭</div><p>Henüz başvurunuz bulunmuyor.</p></div>`;
+    }
+  }catch(e){body.innerHTML='<div style="color:var(--err);padding:1rem">Bağlantı hatası.</div>';}
+}
+
+function renderHistory(r){
+  const dm={
+    beklemede:{cls:'dur-w',  ikon:'⏳',lbl:'İnceleme Bekliyor'},
+    onaylandi:{cls:'dur-ok', ikon:'✅',lbl:'Başvurunuz Onaylandı'},
+    reddedildi:{cls:'dur-no',ikon:'❌',lbl:'Başvurunuz Reddedildi'},
+  }[r.durum]||{cls:'dur-w',ikon:'⏳',lbl:'Bekliyor'};
+  let ans='';
+  SORULAR.forEach(s=>{
+    const c=r.yanitlar[s.n]||'-';
+    ans+=`<div class="ans-item"><div class="ans-q">Soru ${s.n}: ${esc(s.t)}</div><div class="ans-a">${esc(c)}</div></div>`;
+  });
+  return `
+    <div class="dur ${dm.cls}">
+      <div><div>${dm.ikon} ${dm.lbl}</div><div class="dur-meta">Tarih: ${esc(r.tarih)}${r.inceleyen?' • İnceleyen: '+esc(r.inceleyen):''}</div></div>
+      <span class="dur-badge">#${r.id}</span>
+    </div>
+    <div class="ans-hd">≡ Form Yanıtlarınız</div>${ans}`;
+}
+
+/* YARDIMCILAR */
+function closeOverlay(id){document.getElementById(id).classList.remove('open');}
+function overlayClick(e,id){if(e.target.id===id)closeOverlay(id);}
+function closeOk(){closeOverlay('okOverlay');document.getElementById('mainForm').reset();}
+function toast(msg,type){
+  const ex=document.querySelector('.toast');if(ex)ex.remove();
+  const el=document.createElement('div');
+  el.className='toast '+(type==='ok'?'tok-ok':'tok-err');
+  el.textContent=msg; document.body.appendChild(el);
+  setTimeout(()=>{el.style.animation='tIn .28s ease reverse';setTimeout(()=>el.remove(),300);},3000);
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeOverlay('histOverlay');closeOverlay('okOverlay');}});
+</script>
+</body>
+</html>

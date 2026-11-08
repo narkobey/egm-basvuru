@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yetkili Paneli – POMEM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--card:#1a1f2e;--inp:#0f1218;
+  --brd:#2d3748;--acc:#5865F2;--acc2:#4752c4;
+  --txt:#e2e8f0;--txt2:#a0aec0;--mut:#718096;
+  --ok:#48bb78;--err:#fc8181;--wrn:#f6ad55;
+  --r:12px;--r2:8px;--sh:0 4px 24px rgba(0,0,0,.45);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+
+/* ── GİRİŞ ── */
+#pg-login{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 30% 50%,rgba(88,101,242,.09) 0%,transparent 55%),var(--bg)}
+.login-box{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:2.2rem 2rem;max-width:380px;width:100%;text-align:center;box-shadow:var(--sh)}
+.login-icon{font-size:2.5rem;margin-bottom:1rem}
+.login-title{font-size:1.1rem;font-weight:700;margin-bottom:.3rem}
+.login-sub{color:var(--mut);font-size:.8rem;margin-bottom:1.5rem}
+.fi{width:100%;background:var(--inp);border:1px solid var(--brd);border-radius:var(--r2);color:var(--txt);font-family:'Inter',sans-serif;font-size:.875rem;padding:.68rem 1rem;outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:.75rem}
+.fi:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(88,101,242,.12)}
+.fi::placeholder{color:var(--mut)}
+.btn-login{width:100%;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:none;padding:.75rem;border-radius:var(--r2);font-size:.92rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(88,101,242,.4)}
+.err-msg{color:var(--err);font-size:.8rem;margin-top:.5rem;min-height:1.2rem}
+
+/* ── PANEL ── */
+#pg-panel{display:none;min-height:100vh;flex-direction:column}
+.navbar{position:sticky;top:0;z-index:100;background:rgba(22,27,34,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:.7rem 2rem;gap:1rem}
+.brand{display:flex;align-items:center;gap:.7rem}
+.brand-icon{font-size:1.4rem}
+.brand-name{font-size:.9rem;font-weight:700}
+.brand-sub{font-size:.68rem;color:var(--mut)}
+.nav-r{display:flex;align-items:center;gap:.75rem}
+.nav-btn{background:transparent;border:1px solid var(--brd);color:var(--txt2);padding:.4rem .9rem;border-radius:var(--r2);font-size:.8rem;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem}
+.nav-btn:hover{border-color:var(--acc);color:var(--txt)}
+.nav-btn.danger:hover{border-color:var(--err);color:var(--err)}
+
+.wrap{max-width:1100px;margin:0 auto;padding:2rem 1rem 3rem}
+
+/* ── İSTATİSTİKLER ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:1.1rem 1.3rem}
+.stat-val{font-size:1.8rem;font-weight:700;line-height:1}
+.stat-lbl{font-size:.75rem;color:var(--mut);margin-top:.35rem}
+.stat-card.ok  .stat-val{color:var(--ok)}
+.stat-card.wrn .stat-val{color:var(--wrn)}
+.stat-card.err .stat-val{color:var(--err)}
+.stat-card.acc .stat-val{color:var(--acc)}
+
+/* ── FİLTRE ── */
+.filter-bar{display:flex;gap:.5rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.fb{background:var(--card);border:1px solid var(--brd);color:var(--txt2);padding:.38rem .85rem;border-radius:var(--r2);font-size:.8rem;cursor:pointer;font-family:inherit;transition:all .2s}
+.fb:hover,.fb.active{border-color:var(--acc);color:var(--txt);background:rgba(88,101,242,.08)}
+
+/* ── TABLO ── */
+.table-wrap{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th,td{padding:.65rem 1rem;text-align:left;font-size:.82rem;border-bottom:1px solid var(--brd)}
+th{background:var(--bg2);color:var(--txt2);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:5px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.badge-ok {background:rgba(72,187,120,.12);border:1px solid rgba(72,187,120,.3);color:var(--ok)}
+.badge-wrn{background:rgba(246,173,85,.12);border:1px solid rgba(246,173,85,.3);color:var(--wrn)}
+.badge-err{background:rgba(252,129,129,.12);border:1px solid rgba(252,129,129,.3);color:var(--err)}
+.btn-incele{background:transparent;border:1px solid var(--brd);color:var(--acc);padding:.28rem .7rem;border-radius:5px;font-size:.75rem;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-incele:hover{border-color:var(--acc);background:rgba(88,101,242,.08)}
+.empty{text-align:center;padding:3rem;color:var(--mut)}
+
+/* ── DETAY MODALİ ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(5px);z-index:200;align-items:center;justify-content:center;padding:1rem}
+.overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--brd);border-radius:16px;width:100%;max-width:700px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:mIn .22s ease}
+@keyframes mIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mhd{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.4rem;border-bottom:1px solid var(--brd);flex-shrink:0}
+.mttl{font-size:.97rem;font-weight:700}
+.mx{background:none;border:none;color:var(--mut);font-size:1.1rem;cursor:pointer;transition:color .2s;line-height:1}
+.mx:hover{color:var(--txt)}
+.mbdy{flex:1;overflow-y:auto;padding:1.4rem;scrollbar-width:thin;scrollbar-color:var(--brd) transparent;display:flex;flex-direction:column;gap:1.2rem}
+.mft{padding:.9rem 1.4rem;border-top:1px solid var(--brd);display:flex;justify-content:flex-end;gap:.6rem;flex-shrink:0}
+
+/* Detay bölümleri */
+.detail-section{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r2);padding:1.1rem 1.2rem}
+.detail-section-title{font-size:.75rem;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.9rem}
+.detail-user{display:flex;align-items:center;gap:.9rem}
+.detail-av{width:44px;height:44px;border-radius:50%;border:2px solid var(--acc);object-fit:cover}
+.detail-av-fb{width:44px;height:44px;border-radius:50%;border:2px solid var(--acc);background:linear-gradient(135deg,#5865F2,#4752c4);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#fff;flex-shrink:0}
+.detail-username{font-size:.95rem;font-weight:600}
+.detail-id{font-size:.75rem;color:var(--mut)}
+.ans-item{border-left:3px solid rgba(88,101,242,.38);padding-left:.8rem;margin-bottom:.85rem}
+.ans-q{font-size:.75rem;font-weight:600;color:var(--acc);margin-bottom:.15rem}
+.ans-a{font-size:.85rem;line-height:1.55}
+
+/* Güncelleme formu */
+.update-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+label{font-size:.78rem;color:var(--txt2);display:block;margin-bottom:.3rem}
+select,.fi-sm{background:var(--inp);border:1px solid var(--brd);color:var(--txt);padding:.55rem .75rem;border-radius:var(--r2);font-family:'Inter',sans-serif;font-size:.85rem;outline:none;width:100%;transition:border-color .2s}
+select:focus,.fi-sm:focus{border-color:var(--acc)}
+.textarea-note{width:100%;background:var(--inp);border:1px solid var(--brd);border-radius:var(--r2);color:var(--txt);font-family:'Inter',sans-serif;font-size:.85rem;padding:.6rem .9rem;outline:none;resize:vertical;min-height:75px;transition:border-color .2s}
+.textarea-note:focus{border-color:var(--acc)}
+
+.btn-update{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border:none;padding:.55rem 1.3rem;border-radius:var(--r2);font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-update:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(88,101,242,.4)}
+.btn-sil{background:rgba(252,129,129,.1);border:1px solid rgba(252,129,129,.3);color:var(--err);padding:.55rem 1.1rem;border-radius:var(--r2);font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-sil:hover{background:rgba(252,129,129,.2)}
+.btn-kapat{background:var(--bg2);border:1px solid var(--brd);color:var(--txt2);padding:.55rem 1.3rem;border-radius:var(--r2);font-size:.88rem;font-weight:500;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-kapat:hover{border-color:var(--acc);color:var(--txt)}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.4rem;right:1.4rem;border-radius:var(--r2);padding:.75rem 1.15rem;font-size:.84rem;box-shadow:var(--sh);z-index:999;max-width:300px;animation:tIn .28s ease}
+.tok-ok {background:rgba(72,187,120,.1);border:1px solid rgba(72,187,120,.4);color:var(--ok)}
+.tok-err{background:rgba(252,129,129,.1);border:1px solid rgba(252,129,129,.4);color:var(--err)}
+@keyframes tIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+@media(max-width:600px){.update-grid{grid-template-columns:1fr}.wrap{padding:1rem .75rem 2rem}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- ═══ ADMIN GİRİŞ ═══ -->
+<div id="pg-login">
+  <div class="login-box">
+    <div class="login-icon">⚙️</div>
+    <h1 class="login-title">Yetkili Paneli</h1>
+    <p class="login-sub">POMEM Başvuru Yönetimi</p>
+    <input type="password" id="passInput" class="fi" placeholder="Yönetici Şifresi" onkeydown="if(event.key==='Enter')adminLogin()">
+    <button class="btn-login" onclick="adminLogin()">Giriş Yap</button>
+    <div class="err-msg" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ═══ PANEL ═══ -->
+<div id="pg-panel">
+  <nav class="navbar">
+    <div class="brand">
+      <span class="brand-icon"><img src="/egm.png" alt="EGM" style="width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 0 6px rgba(88,101,242,.4))"></span>
+      <div>
+        <div class="brand-name">YETKİLİ PANELİ</div>
+        <div class="brand-sub">POMEM Başvuru Yönetimi</div>
+      </div>
+    </div>
+    <div class="nav-r">
+      <a href="/" class="nav-btn">← Portale Dön</a>
+      <button class="nav-btn danger" onclick="adminLogout()">Çıkış</button>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <!-- İstatistikler -->
+    <div class="stats" id="statsBox"></div>
+
+    <!-- Filtre -->
+    <div class="filter-bar">
+      <button class="fb active" onclick="setFilter('tumu',this)">Tümü</button>
+      <button class="fb" onclick="setFilter('beklemede',this)">⏳ Beklemede</button>
+      <button class="fb" onclick="setFilter('onaylandi',this)">✅ Onaylandı</button>
+      <button class="fb" onclick="setFilter('reddedildi',this)">❌ Reddedildi</button>
+    </div>
+
+    <!-- Tablo -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Kullanıcı</th>
+            <th>Discord</th>
+            <th>Durum</th>
+            <th>İnceleyen</th>
+            <th>Tarih</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DETAY MODALİ ═══ -->
+<div id="detailOverlay" class="overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="mhd">
+      <div class="mttl" id="modalTitle">Başvuru Detayı</div>
+      <button class="mx" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="mbdy" id="modalBody"></div>
+    <div class="mft">
+      <button class="btn-sil" onclick="silBasvuru()">🗑️ Sil</button>
+      <button class="btn-update" onclick="guncelle()">💾 Güncelle</button>
+      <button class="btn-kapat" onclick="closeDetail()">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SORULAR = [
+  {n:1, t:'Yaşınız kaçtır? (OOC)'},
+  {n:2, t:'Daha önce hangi Türk sunucularında bulundunuz? (OOC)'},
+  {n:3, t:'Sunucuya ne zaman geldiniz, hiç illegal yaptınız mı?'},
+  {n:4, t:'Aktiflik saatiniz günlük ne kadar?'},
+  {n:5, t:'FiveM saatiniz ne kadar?'},
+  {n:6, t:'Başka bir sunucuda yetkili göreviniz var mı? (OOC)'},
+  {n:7, t:'Karakterinizin adı soyadı nedir? (IC)'},
+  {n:8, t:'Karakterinizin yaşı ve mesleği nedir? (IC)'},
+  {n:9, t:'Polislik neden istiyorsunuz?'},
+  {n:10,t:'Polis akademisinde hangi derslerde başarılı oldunuz?'},
+  {n:11,t:'Ekip çalışmasına bakış açınız nedir?'},
+  {n:12,t:'Bir olay yerine ilk vardığınızda ne yaparsınız?'},
+  {n:13,t:'Silah kullanımı konusunda kendinizi nasıl değerlendirirsiniz?'},
+  {n:14,t:'Yolda yaralı bir kişi gördüğünüzde nasıl davranırsınız?'},
+  {n:15,t:'Amirlerinizin emirlerine katılmadığınızda ne yaparsınız?'},
+  {n:16,t:'Rüşvet teklif edilse ne yaparsınız?'},
+  {n:17,t:'Sunucudaki polis kurallarını biliyor musunuz?'},
+  {n:18,t:'PIT nedir ve nasıl atılır?'},
+  {n:19,t:'Hapis ve kamu cezası nasıl yazılır?'},
+  {n:20,t:'Bir sivil size hakaret edip agresif rol sergiliyorsa ne yaparsınız?'},
+];
+
+let allData = [];
+let currentFilter = 'tumu';
+let currentId = null;
+
+// ── BAŞLAT
+async function init() {
+  const res  = await fetch('/api/admin/me');
+  const data = await res.json();
+  if (data.isAdmin) showPanel();
+}
+init();
+
+// ── GİRİŞ / ÇIKIŞ
+async function adminLogin() {
+  const pw = document.getElementById('passInput').value;
+  const res = await fetch('/api/admin/login', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ password: pw }),
+  });
+  const data = await res.json();
+  if (data.success) {
+    document.getElementById('loginErr').textContent = '';
+    showPanel();
+  } else {
+    document.getElementById('loginErr').textContent = '❌ ' + (data.message || 'Hatalı şifre.');
+  }
+}
+async function adminLogout() {
+  await fetch('/api/admin/logout');
+  document.getElementById('pg-panel').style.display = 'none';
+  document.getElementById('pg-login').style.display = 'flex';
+}
+
+// ── PANEL
+async function showPanel() {
+  document.getElementById('pg-login').style.display = 'none';
+  document.getElementById('pg-panel').style.display = 'flex';
+  document.getElementById('pg-panel').style.flexDirection = 'column';
+  await loadData();
+}
+
+async function loadData() {
+  const res  = await fetch('/api/admin/basvurular');
+  const data = await res.json();
+  allData = data.data || [];
+  renderStats();
+  renderTable();
+}
+
+function renderStats() {
+  const total    = allData.length;
+  const bekleyen = allData.filter(b => b.durum === 'beklemede').length;
+  const onaylandi= allData.filter(b => b.durum === 'onaylandi').length;
+  const red      = allData.filter(b => b.durum === 'reddedildi').length;
+  document.getElementById('statsBox').innerHTML = `
+    <div class="stat-card acc"><div class="stat-val">${total}</div><div class="stat-lbl">Toplam Başvuru</div></div>
+    <div class="stat-card wrn"><div class="stat-val">${bekleyen}</div><div class="stat-lbl">Beklemede</div></div>
+    <div class="stat-card ok"> <div class="stat-val">${onaylandi}</div><div class="stat-lbl">Onaylandı</div></div>
+    <div class="stat-card err"><div class="stat-val">${red}</div><div class="stat-lbl">Reddedildi</div></div>`;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.fb').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function renderTable() {
+  const filtered = currentFilter === 'tumu' ? allData : allData.filter(b => b.durum === currentFilter);
+  const tbody = document.getElementById('tableBody');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty">📭 Başvuru bulunamadı.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(b => {
+    const badge = durumBadge(b.durum);
+    return `<tr>
+      <td style="color:var(--mut);font-size:.78rem">${b.id}</td>
+      <td style="font-weight:600">${esc(b.global_name || b.username)}</td>
+      <td style="color:var(--mut);font-size:.76rem">${esc(b.username)}</td>
+      <td>${badge}</td>
+      <td style="color:var(--txt2)">${esc(b.inceleyen || '—')}</td>
+      <td style="color:var(--mut);font-size:.76rem">${esc(b.tarih)}</td>
+      <td><button class="btn-incele" onclick="openDetail(${b.id})">İncele →</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function durumBadge(d) {
+  if (d === 'onaylandi')  return `<span class="badge badge-ok">✅ Onaylandı</span>`;
+  if (d === 'reddedildi') return `<span class="badge badge-err">❌ Reddedildi</span>`;
+  return `<span class="badge badge-wrn">⏳ Beklemede</span>`;
+}
+
+// ── DETAY MODALİ
+async function openDetail(id) {
+  currentId = id;
+  const res  = await fetch(`/api/admin/basvuru/${id}`);
+  const data = await res.json();
+  if (!data.success) return toast('Başvuru bulunamadı.', 'err');
+
+  const b = data.data;
+  document.getElementById('modalTitle').textContent = `Başvuru #${b.id} – ${b.global_name || b.username}`;
+
+  // Avatar
+  const avHTML = b.avatar
+    ? `<img src="https://cdn.discordapp.com/avatars/${b.discord_id}/${b.avatar}.png?size=64" class="detail-av" alt="">`
+    : `<div class="detail-av-fb">${(b.global_name||b.username).slice(0,2).toUpperCase()}</div>`;
+
+  // Yanıtlar
+  let ansHTML = '';
+  SORULAR.forEach(s => {
+    const c = (b.yanitlar && (b.yanitlar[s.n] || b.yanitlar[String(s.n)])) || '—';
+    ansHTML += `<div class="ans-item"><div class="ans-q">Soru ${s.n}: ${esc(s.t)}</div><div class="ans-a">${esc(c)}</div></div>`;
+  });
+
+  document.getElementById('modalBody').innerHTML = `
+    <!-- Kullanıcı bilgisi -->
+    <div class="detail-section">
+      <div class="detail-section-title">Kullanıcı</div>
+      <div class="detail-user">
+        ${avHTML}
+        <div>
+          <div class="detail-username">${esc(b.global_name || b.username)}</div>
+          <div class="detail-id">@${esc(b.username)} • ID: ${esc(b.discord_id)}</div>
+          <div class="detail-id">Başvuru Tarihi: ${esc(b.tarih)}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Durum güncelle -->
+    <div class="detail-section">
+      <div class="detail-section-title">Durum Güncelle</div>
+      <div class="update-grid">
+        <div>
+          <label>Durum</label>
+          <select id="updDurum">
+            <option value="beklemede"  ${b.durum==='beklemede'  ?'selected':''}>⏳ Beklemede</option>
+            <option value="onaylandi"  ${b.durum==='onaylandi'  ?'selected':''}>✅ Onaylandı</option>
+            <option value="reddedildi" ${b.durum==='reddedildi' ?'selected':''}>❌ Reddedildi</option>
+          </select>
+        </div>
+        <div>
+          <label>İnceleyen Yetkili</label>
+          <input type="text" id="updInceleyen" class="fi-sm" value="${esc(b.inceleyen||'')}" placeholder="Yetkili adı...">
+        </div>
+      </div>
+      <div style="margin-top:.75rem">
+        <label>İç Notlar (adaya gösterilmez)</label>
+        <textarea id="updNotlar" class="textarea-note" placeholder="Notlarınız...">${esc(b.notlar||'')}</textarea>
+      </div>
+    </div>
+
+    <!-- Yanıtlar -->
+    <div class="detail-section">
+      <div class="detail-section-title">Form Yanıtları</div>
+      ${ansHTML}
+    </div>`;
+
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+async function guncelle() {
+  if (!currentId) return;
+  const res = await fetch(`/api/admin/basvuru/${currentId}/guncelle`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      durum:     document.getElementById('updDurum').value,
+      inceleyen: document.getElementById('updInceleyen').value.trim(),
+      notlar:    document.getElementById('updNotlar').value.trim(),
+    }),
+  });
+  const data = await res.json();
+  if (data.success) {
+    toast('✅ Başvuru güncellendi.', 'ok');
+    closeDetail();
+    await loadData();
+  } else {
+    toast('❌ Güncelleme başarısız.', 'err');
+  }
+}
+
+async function silBasvuru() {
+  if (!currentId) return;
+  if (!confirm('Bu başvuruyu silmek istediğinizden emin misiniz?')) return;
+  const res  = await fetch(`/api/admin/basvuru/${currentId}`, { method: 'DELETE' });
+  const data = await res.json();
+  if (data.success) {
+    toast('🗑️ Başvuru silindi.', 'ok');
+    closeDetail();
+    await loadData();
+  } else {
+    toast('❌ Silme başarısız.', 'err');
+  }
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  currentId = null;
+}
+function overlayClick(e) {
+  if (e.target.id === 'detailOverlay') closeDetail();
+}
+
+// ── TOAST
+function toast(msg, type) {
+  const ex = document.querySelector('.toast'); if (ex) ex.remove();
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type === 'ok' ? 'tok-ok' : 'tok-err');
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.animation = 'tIn .28s ease reverse'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+</script>
+</body>
+</html>
